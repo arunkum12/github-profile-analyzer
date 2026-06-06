@@ -1,0 +1,281 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "GitHub Profile Analyzer API",
+    "version": "1.0.0",
+    "description": "API documentation for the GitHub Profile Analyzer backend project. Allows analyzing user profiles, fetching aggregate insights, and managing profile summaries."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Local development server"
+    }
+  ],
+  "paths": {
+    "/api/profiles/analyze/{username}": {
+      "post": {
+        "summary": "Analyze and save/update GitHub Profile",
+        "description": "Fetches profile and repositories from GitHub, aggregates insights (stars, languages, profile score), and updates the MySQL database.",
+        "parameters": [
+          {
+            "name": "username",
+            "in": "path",
+            "required": true,
+            "description": "GitHub username to analyze",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Analysis successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Profile"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid username format"
+          },
+          "404": {
+            "description": "GitHub profile not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          }
+        }
+      }
+    },
+    "/api/profiles": {
+      "get": {
+        "summary": "Get all analyzed profiles",
+        "description": "Returns a paginated list of all analyzed profiles with search, filter, and sorting features.",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            },
+            "description": "Page number"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 10,
+              "maximum": 100
+            },
+            "description": "Number of profiles per page"
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Search keyword matching username, name, or bio"
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["username", "name", "public_repos", "followers", "following", "account_age_days", "total_stars", "profile_score", "analyzed_at"],
+              "default": "analyzed_at"
+            },
+            "description": "Field to sort by"
+          },
+          {
+            "name": "sortOrder",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["ASC", "DESC"],
+              "default": "DESC"
+            },
+            "description": "Sort direction"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Profile"
+                      }
+                    },
+                    "pagination": {
+                      "type": "object",
+                      "properties": {
+                        "totalItems": { "type": "integer" },
+                        "totalPages": { "type": "integer" },
+                        "currentPage": { "type": "integer" },
+                        "itemsPerPage": { "type": "integer" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/profiles/{username}": {
+      "get": {
+        "summary": "Get single profile details",
+        "description": "Returns details of a single profile retrieved from the local database.",
+        "parameters": [
+          {
+            "name": "username",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "GitHub username"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Profile details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Profile"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Profile not found in database"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a profile",
+        "description": "Removes the analyzed profile from the database.",
+        "parameters": [
+          {
+            "name": "username",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "GitHub username to delete"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Profile deleted successfully"
+          },
+          "404": {
+            "description": "Profile not found"
+          }
+        }
+      }
+    },
+    "/api/stats/top-followed": {
+      "get": {
+        "summary": "Top 5 most followed profiles",
+        "description": "Fetches the top 5 most followed GitHub profiles stored in the local database.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "username": { "type": "string" },
+                          "name": { "type": "string" },
+                          "followers": { "type": "integer" },
+                          "profileScore": { "type": "integer" },
+                          "avatarUrl": { "type": "string" }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/stats/languages": {
+      "get": {
+        "summary": "Aggregate language statistics",
+        "description": "Aggregates counts of programming languages used across all repositories of all analyzed profiles.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "languages": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "integer"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Profile": {
+        "type": "object",
+        "properties": {
+          "username": { "type": "string" },
+          "name": { "type": "string", "nullable": true },
+          "bio": { "type": "string", "nullable": true },
+          "publicRepos": { "type": "integer" },
+          "followers": { "type": "integer" },
+          "following": { "type": "integer" },
+          "accountAgeDays": { "type": "integer" },
+          "totalStars": { "type": "integer" },
+          "mostStarredRepo": { "type": "string", "nullable": true },
+          "avgStarsPerRepo": { "type": "number", "format": "float" },
+          "profileScore": { "type": "integer" },
+          "languageStats": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "integer"
+            }
+          },
+          "profileUrl": { "type": "string" },
+          "avatarUrl": { "type": "string" },
+          "analyzedAt": { "type": "string", "format": "date-time" }
+        }
+      }
+    }
+  }
+}
