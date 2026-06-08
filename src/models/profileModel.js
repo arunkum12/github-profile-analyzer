@@ -115,7 +115,7 @@ async function getAllProfiles({ limit, offset, search, sortBy, sortOrder }) {
   query += ' LIMIT ? OFFSET ?';
   queryParams.push(limit, offset);
 
-  const [rows] = await pool.execute(query, queryParams);
+  const [rows] = await pool.query(query, queryParams);
 
   // Parse language stats for each profile
   return rows.map(profile => {
@@ -154,7 +154,7 @@ async function countAllProfiles({ search }) {
  */
 async function getTopFollowed(limit = 5) {
   const query = 'SELECT * FROM profiles ORDER BY followers DESC LIMIT ?';
-  const [rows] = await pool.execute(query, [limit]);
+  const [rows] = await pool.query(query, [limit]);
   
   return rows.map(profile => {
     try {

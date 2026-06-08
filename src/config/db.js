@@ -13,6 +13,9 @@ const mockPool = {
       release() {}
     };
   },
+  async query(query, params = []) {
+    return this.execute(query, params);
+  },
   async execute(query, params = []) {
     const q = query.trim().replace(/\s+/g, ' ');
     
