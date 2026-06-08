@@ -7,6 +7,10 @@
   },
   "servers": [
     {
+      "url": "/",
+      "description": "Current Host (Dynamic)"
+    },
+    {
       "url": "http://localhost:3000",
       "description": "Local development server"
     }
