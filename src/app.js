@@ -14,7 +14,7 @@ const swaggerDocument = require('./config/swagger.json');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const HOST = '127.0.0.1'; // Force server to bind to localhost for security during testing
+const HOST = process.env.HOST || '0.0.0.0'; // Bind to all network interfaces for cloud hosting (e.g., Railway/Render)
 
 // 1. Security Middleware
 app.use(helmet()); // Protect HTTP headers
