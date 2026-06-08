@@ -160,8 +160,8 @@ async function testConnection() {
     console.log('Database connected successfully.');
     connection.release();
   } catch (error) {
-    console.error('Error connecting to the database:', error.message);
-    process.exit(1);
+    console.error('Error connecting to the database on startup:', error.message);
+    console.warn('Server starting up anyway. DB operations will fail until connection is established.');
   }
 }
 
