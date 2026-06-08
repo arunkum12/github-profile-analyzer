@@ -54,7 +54,7 @@ github-profile-analyzer/
 | `profileController.js` | Input Validation | **Secure** | Sanitizes user inputs. Validate GitHub usernames against regex: `/^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i` (replaces path breakouts, scripts, or SQL injections). |
 | `profileController.js` | Error Technical Leaks | **Secure** | Captures all runtime exceptions. Database syntax, queries, and system stack traces are logged locally but generic internal messages are returned to the API client. |
 | `profileRoutes.js` | Rate Limiting | **Secure** | Establishes a general rate limiter (100 req/15 min) and a strict endpoint limiter (15 req/15 min) on profile analysis to prevent API resource abuse. |
-| `app.js` | Security Headers | **Secure** | Mounts `helmet` middleware to enforce secure HTTP headers (nosniff, XSS protection, anti-clickjacking) and configures strict CORS. |
+| `app.js` | Security Headers | **Secure** | Mounts `helmet` middleware to enforce secure HTTP headers (nosniff, XSS protection, anti-clickjacking), and overrides CSP on `/api-docs` to allow Swagger fetch requests. |
 | `app.js` | Bind Policy | **Secure** | Restricts local server bindings exclusively to loopback interface `127.0.0.1` during testing. |
 | `githubService.js` | Secrets Exposure | **Secure** | Pulls `GITHUB_TOKEN` from server environment variables rather than hardcoding credentials inside source code files. |
 

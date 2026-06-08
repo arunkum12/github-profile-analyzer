@@ -27,7 +27,13 @@ app.use(cors({
 app.use(express.json());
 
 // 3. API Documentation
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use('/api-docs', (req, res, next) => {
+  res.setHeader(
+    'Content-Security-Policy',
+    "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' http://localhost:3000 http://127.0.0.1:3000"
+  );
+  next();
+}, swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // 4. API Routes
 app.use('/api', profileRoutes);
